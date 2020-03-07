@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>图片轮播</title>
+    <style>
+        .div1 {
+            position: relative;
+            width: 600px;
+            height: 400px;
+        }
+
+        .div1>img {
+            position: absolute;
+            width: 600px;
+            height: 400px;
+            /* transition: opacity 1s linear; */
+
+        }
+
+        .div2 {
+            position: relative;
+            width: 600px;
+            height: 400px;
+            margin: 100px auto;
+        }
+
+        .newop {
+            opacity: 1;
+        }
+
+        .oldop {
+            opacity: 0;
+        }
+
+        .point {
+            position: absolute;
+            z-index: 999;
+            bottom: 20px;
+            left: 40px;
+            height: 13px;
+        }
+
+        .point>div {
+            width: 13px;
+            height: 13px;
+            border: 1px solid white;
+            background-color: transparent;
+            box-sizing: border-box;
+            float: left;
+            margin: 0 3px;
+            border-radius: 50%;
+            transition: background-color 1s linear;
+        }
+
+        .new_color {
+            background-color: red !important;
+        }
+
+        .btn {
+            width: 600px;
+            height: 50px;
+            position: absolute;
+            z-index: 998;
+            top: 175px;
+
+        }
+
+        .btnleft {
+            cursor: pointer;
+            display: block;
+            width: 30px;
+            height: 50px;
+            background-color: rgba(202, 202, 202, 0.568);
+            color: white;
+            font-size: 20px;
+            text-align: center;
+            line-height: 50px;
+            float: left;
+        }
+
+        .btnright {
+            cursor: pointer;
+            display: block;
+            width: 30px;
+            height: 50px;
+            background-color: rgba(202, 202, 202, 0.568);
+            color: white;
+            font-size: 20px;
+            text-align: center;
+            line-height: 50px;
+            float: right;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="div2">
+        <div class="btn">
+            <span class="btnleft">&lt</span>
+            <span class="btnright">&gt</span>
+        </div>
+        <div class="div1">
+            <img src="./img/one_1.jpg.webp" alt="" class="newop">
+            <img src="./img/one_2.jpg.webp" alt="" class="oldop">
+            <img src="./img/one_3.jpg.webp" alt="" class="oldop">
+            <img src="./img/one_4.jpg.webp" alt="" class="oldop">
+            <img src="./img/one_5.jpg.webp" alt="" class="oldop">
+            <img src="./img/one_6.jpg.webp" alt="" class="oldop">
+            <img src="./img/one_7.jpg.webp" alt="" class="oldop">
+            <img src="./img/one_8.jpg.webp" alt="" class="oldop">
+        </div>
+
+        <div class="point">
+            <div class="new_color"></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+        </div>
+    </div>
+    <script>
+        var bolck1 = document.getElementsByClassName('div1')[0];
+        var bolck2 = document.getElementsByClassName('div2')[0];
+        var point = document.getElementsByClassName('point')[0];
+        var btnleft = document.getElementsByClassName('btnleft')[0];
+        var btnright = document.getElementsByClassName('btnright')[0];
+        var nowcolor = point.children[0];
+        var time;
+        // console.log(bolck1.children.length)
+        for (var i = 0; i < bolck1.children.length; i++) {
+            bolck1.children[i].style.zIndex = bolck1.children.length - 1 - i;
+            // 即将每张图片按照从大到小排列，第一张图最先显示
+        }
+        showimg();
+        // 为了之后重启计时器方便调用，进行函数封装
+        function showimg() {
+            time = setInterval(function () {
+                countimg(1);
+            }, 2000)
+        }
+
+        function countimg(num) { //形参num 为执行下方小点时需要的参数，建议开始时不写，先实现翻页和循环后再写
+            // 实现层的算法为自加；也可以搭配自减
+            // 具体方案为：写上计时器 封装函数为 count_img() 但先不调用 function count_img)(num) for ->z-index-- ->if(index==0){index=4   为当前显示样式和图片} ->
+            // if(index==bolck1.children.length-1){为之前的显示样式和图片，需要给它不显示的样式}
+            for (var k = 0; k < num; k++) {
+                for (var i = 0; i < bolck1.children.length; i++) {
+                    var index = bolck1.children[i].style.zIndex;
+                    index++;
+                    if (index == bolck1.children.length) { //前一张显示的图
+                        index = 0;
+                        bolck1.children[i].className = 'oldop'
+                        point.children[i].className = ''; //后续代码，实现下方小点的鼠标跟随
+                    }
+                    if (index == bolck1.children.length - 1) { //当前会显示的图
+                        bolck1.children[i].className = 'newop';
+                        point.children[i].className = 'new_color'; //后续代码，实现下方小点的鼠标跟随
+                        nowcolor = point.children[i]; //记录当前的变色点
+                    }
+                    bolck1.children[i].style.zIndex = index; //赋值，完成一次轮播  
+
+                }
+            }
+        }
+        // 下面主要是功能完善和修改bug
+        // 当鼠标进入图片区域时，停止轮播，即清空计时器
+        bolck2.οnmοuseenter = function () {
+            clearInterval(time);
+        }
+        // 当鼠标离开时，开始计时器
+        bolck2.οnmοuseleave = function () {
+            showimg();
+        }
+        // 比较难的地方，实现了鼠标进入小点，显示对应的图片
+        for (var i = 0; i < point.children.length; i++) {
+            point.children[i].index = i;
+            // 取出索引值
+            point.children[i].οnmοuseenter = function () {
+                // 每个小点的鼠标进入事件
+                nowcolor.className = '';
+                this.className = 'new_color';
+                var num = 0;
+                // console.log(this.index);
+                if (this.index - nowcolor.index > 0) {
+                    // 判断当前的鼠标进入点和之前点的位置关系，如果大于，利用做差来得出参数
+                    // 即需要执行coutimg的次数
+                    num = this.index - nowcolor.index;
+                } else {
+                    // num=Math.abs(this.index-nowcolor.index)；
+                    num = point.children.length - Math.abs(this.index - nowcolor.index);
+                    // 同方向的执行，不嫌麻烦也可以写为反方向执行，143行写了具体思路；
+                }
+                // console.log(num);
+                countimg(num);
+                // 函数调用
+                nowcolor = this;
+                // 记录当前颜色
+            }
+        }
+        document.onselectstart = function () {
+            // 选择开始事件
+            // 消除点击图片变色bug，同样可以禁止用户复制
+            return false;
+        }
+        // 左右按钮点击事件
+        btnright.οnclick = function () {
+            countimg(1);
+        }
+        btnleft.οnclick = function () {
+            countimg(7);
+            // count_img(1);
+        }
+    </script>
+</body>
+
+</html>
